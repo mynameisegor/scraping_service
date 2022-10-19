@@ -5,6 +5,7 @@ from .utils import from_cyrillic_to_eng
 def defaults_url():
     return {'hhru': '', 'rabota66': ''}
 
+
 # Create your models here.
 class City(models.Model):
     name = models.CharField(max_length=50, verbose_name='Название города', unique=True)
@@ -52,6 +53,7 @@ class Vacancy(models.Model):
     class Meta:
         verbose_name = 'Вакансия'
         verbose_name_plural = 'Вакансии'
+        ordering = ['-timestamp']
 
     def __str__(self):
         return self.title
@@ -69,4 +71,3 @@ class Url(models.Model):
 
     class Meta:
         unique_together = ('city', 'language')
-

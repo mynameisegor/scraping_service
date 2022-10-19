@@ -16,63 +16,62 @@ headers = [
 ]
 
 
-def hhru(url):
+def hhru(url, city=None, language=None):
     jobs = []
     errors = []
-    url = 'https://ekaterinburg.hh.ru/search/vacancy?area=3&clusters=true&enable_snippets=true&ored_' \
-          'clusters=true&text=python&order_by=publication_time&hhtmFrom=vacancy_search_list'
-    resp = requests.get(url, headers=headers[randint(0, 2)])
-    if resp.status_code == 200:
-        soup = BS(resp.content, 'html.parser')
-        main_div = soup.find('div', id='a11y-main-content')
-        if main_div:
-            div_lst = main_div.find_all('div', attrs={'class': 'serp-item'})
-            for div in div_lst:
-                title = div.find('h3')
-                href = title.a['href']
-                content = div.find('div', attrs={'class': 'g-user-content'}).get_text() + \
-                          div.find('div', attrs={'class': 'bloko-text'}).get_text()
-                company = div.find('div', attrs={'class': 'vacancy-serp-item-company'}).a.get_text()
-                logo = div.find('img')
+    if url:
+        resp = requests.get(url, headers=headers[randint(0, 2)])
+        if resp.status_code == 200:
+            soup = BS(resp.content, 'html.parser')
+            main_div = soup.find('div', id='a11y-main-content')
+            if main_div:
+                div_lst = main_div.find_all('div', attrs={'class': 'serp-item'})
+                for div in div_lst:
+                    title = div.find('h3')
+                    href = title.a['href']
+                    content = div.find('div', attrs={'class': 'g-user-content'}).get_text() + \
+                              div.find('div', attrs={'class': 'bloko-text'}).get_text()
+                    company = div.find('div', attrs={'class': 'vacancy-serp-item-company'}).a.get_text()
 
-                jobs.append({'title': title.text, 'url': href, 'description': content, 'company': company})
+                    jobs.append({'title': title.text, 'url': href, 'description': content, 'company': company,
+                                  'city_id': city, 'language_id': language})
+            else:
+                errors.append({'url': url, 'title': 'Div hhru does not exists', })
+
         else:
-            errors.append({'url': url, 'title': 'Div hhru does not exists', })
-
-    else:
-        errors.append({'url': url, 'title': 'Page hhru do not response', })
+            errors.append({'url': url, 'title': 'Page hhru do not response', })
 
     return jobs, errors
 
 
-def rabota66(url):
+def rabota66(url, city=None, language=None):
     jobs = []
     errors = []
     domain = 'https://www.rabota66.ru'
-    resp = requests.get(url, headers=headers[randint(0, 2)])
-    if resp.status_code == 200:
-        soup = BS(resp.content, 'html.parser')
-        main_div_habr = soup.find("div", attrs={'id': "vacancy-list"})
-        if main_div_habr:
-            li_lst = main_div_habr.find_all('li', attrs={'class': "vvl-one vvl-ord- vvl-detaled- show- "
-                                                                   "hide-note-comment clearfix"})
-            if li_lst:
-                for li in li_lst:
-                    link = li.find('div', attrs={'class': "pad- pb5"})
-                    title = link.find('a', attrs={'id': True}).text
-                    href = li.a['href']
-                    # content = div.find('div', attrs={'class': "vacancy-card__skills"}).get_text()
-                    company = link.find('div', attrs={'class': "employer- clearfix"}).a.text
-                    # logo = div.find('img')
-                    jobs.append({'title': title, 'url': domain + href, 'company': company})
+    if url:
+        resp = requests.get(url, headers=headers[randint(0, 2)])
+        if resp.status_code == 200:
+            soup = BS(resp.content, 'html.parser')
+            main_div_habr = soup.find("div", attrs={'id': "vacancy-list"})
+            if main_div_habr:
+                li_lst = main_div_habr.find_all('li', attrs={'class': "vvl-one vvl-ord- vvl-detaled- show- "
+                                                                       "hide-note-comment clearfix"})
+                if li_lst:
+                    for li in li_lst:
+                        link = li.find('div', attrs={'class': "pad- pb5"})
+                        title = link.find('a', attrs={'id': True}).text
+                        href = li.a['href']
+                        company = link.find('div', attrs={'class': "employer- clearfix"}).a.text
+                        jobs.append({'title': title, 'url': domain + href, 'company': company,
+                                  'city_id': city, 'language_id': language})
+                else:
+                    errors.append(2)
             else:
-                errors.append(2)
+
+                errors.append({'url': url, 'title': 'Div rabota66 does not exists', })
+
         else:
-
-            errors.append({'url': url, 'title': 'Div rabota66 does not exists', })
-
-    else:
-        errors.append({'url': url, 'title': 'Page rabota66 do not response', })
+            errors.append({'url': url, 'title': 'Page rabota66 do not response', })
 
     return jobs, errors
 
